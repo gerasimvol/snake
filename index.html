@@ -17,39 +17,17 @@
       margin: 0;
     }
 
-    .page {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #2f5569;
-    }
-
-    .game-board-container-wrapper {
-      margin: 0 auto;
-      width: 80%;
-      max-width: 600px;
-    }
-
-    .game-board-container {
-      position: relative;
-      padding-bottom: 105%;
-    }
-
-    canvas {
-      position: absolute;
+    .game {
+      position: fixed;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="game-board-container-wrapper">
-      <div class="game-board-container"></div>
-    </div>
-  </div>
+  <div class="game"></div>
 
   <script type="module" src="script.js" ></script>
 </body>

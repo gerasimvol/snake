@@ -1,3 +1,3 @@
 import SnakeCanvas from './canvas/snake-canvas.js'
 
-new SnakeCanvas('.game-board-container')
+new SnakeCanvas('.game')
