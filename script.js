@@ -1,3 +1,4 @@
-import SnakeCanvas from './canvas/snake-canvas.js'
+import Game from './js/game-canvas.js'
 
-new SnakeCanvas('.game')
+new Game('.game')
+
