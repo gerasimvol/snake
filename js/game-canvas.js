@@ -1,6 +1,12 @@
 import BaseCanvas from './base-canvas.js'
+import { copy, random } from './helpers.js'
 
-// TODO: import copy from /helpers/copy
+// TODO: add gameover
+// TODO: add scores
+// TODO: add hold and speed up
+
+const MAX_SPEED = 40
+const LEVEL_SPEED_UP = 4
 
 const colors = {
   square: {
@@ -16,19 +22,25 @@ export default class GameCanvas extends BaseCanvas {
   constructor (container) {
     super(container)
 
-    this.apple = { row: 2, col: 2 }
+    this.apple = { row: 0, col: 0 }
 
     this.snake = {
       direction: 'right',
       speedMs: 150,
       path: [
-        { row: 0, col: 2 },
-        { row: 0, col: 1 },
-        { row: 0, col: 0 }
+        { row: 0, col: 32 },
+        { row: 0, col: 31 },
+        { row: 0, col: 30 }
       ]
     }
 
     document.addEventListener('keydown', e => {
+      const allowedKeys = [
+        'ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'
+      ]
+
+      if (!allowedKeys.includes(e.key)) return
+
       const opositeDirections = {
         up: 'down',
         down: 'up',
@@ -36,26 +48,26 @@ export default class GameCanvas extends BaseCanvas {
         right: 'left'
       }
 
-      const newDirection = e.key.replace('Arrow', '').toLowerCase()
-
+      const newDirection = e.key.replace('Arrow', '').toLowerCase().trim()
+      
       this.snake.direction = opositeDirections[newDirection] === this.snake.direction
         ? this.snake.direction
         : newDirection
     })
 
-    super.childRenderFunction = this.draw
-    this.draw()
-    this.play()
+    super.childRenderFunction = this._draw
+    this._draw()
+    this._play()
   }
 
-  getRandomSquare() {
+  _getRandomSquare() {
     return {
-      row: '', // TODO: randomize
-      col: ''
+      row: random(0, this.board.rows),
+      col: random(0, this.board.cols)
     }
   }
   
-  drawSquare(x, y) {
+  _drawSquare(x, y) {
     this.ctx.fillRect(
       x * this.squareSizePx + (this.oddXSpace / 2) + 1,
       y * this.squareSizePx + this.statsSafeAreaPx + this.oddYSpace + 1,
@@ -64,7 +76,7 @@ export default class GameCanvas extends BaseCanvas {
     )
   }
 
-  draw () {
+  _draw () {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
     // score and volume on top
@@ -103,26 +115,25 @@ export default class GameCanvas extends BaseCanvas {
 
         // square bg
         this.ctx.fillStyle = colors.square.fill
-        this.drawSquare(col, row)
+        this._drawSquare(col, row)
       }
     }
 
     // draw apple
-    console.log('this.apple', this.apple)
     this.ctx.fillStyle = colors.apple
-    this.drawSquare(this.apple.col, this.apple.row)
+    this._drawSquare(this.apple.col, this.apple.row)
 
     // draw snake
     this.ctx.fillStyle = colors.snake
     this.snake.path.forEach(rect => {
-      this.drawSquare(rect.col, rect.row)
+      this._drawSquare(rect.col, rect.row)
     })
 
-    requestAnimationFrame(this.draw.bind(this))
+    requestAnimationFrame(this._draw.bind(this))
   }
 
-  play () {
-    setInterval(() => {
+  _play () {
+    const engine = () => {
       let prevSquare
       this.snake.path.forEach((square, index) => {
         const isHead = index === 0
@@ -146,13 +157,18 @@ export default class GameCanvas extends BaseCanvas {
             square.row = 0
           } else if (square.row === -1) {
             square.row = this.board.rows - 1
-          } else if (square.row === this.apple.row && square.col === this.apple.col) {
-            // eat at apple
+          }
+
+          // eat at apple
+          if (square.row === this.apple.row && square.col === this.apple.col) {
             const tail = this.snake.path[this.snake.path.length - 1]
             this.snake.path.push(tail)
-
             // create new apple
-            this.apple = getRandomSquare()
+            this.apple = this._getRandomSquare()
+            // speed up game
+            this.snake.speedMs = this.snake.speedMs < MAX_SPEED
+              ? MAX_SPEED
+              : this.snake.speedMs - LEVEL_SPEED_UP
           }
         } else {
           const squareBeforeUpdate = copy(this.snake.path[index])
@@ -160,8 +176,8 @@ export default class GameCanvas extends BaseCanvas {
           prevSquare = copy(squareBeforeUpdate)
         }
       })
-
-      // TODO: add arrow keys controls
-    }, this.snake.speedMs)
+      setTimeout(engine, this.snake.speedMs)
+    }
+    setTimeout(engine, this.snake.speedMs)
   }
 }
