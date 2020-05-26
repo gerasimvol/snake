@@ -9,12 +9,25 @@
     html, body {
       width: 100vw;
       height: 100vh;
+      font-family: monospace;
     }
 
     * {
       box-sizing: border-box;
       padding: 0;
       margin: 0;
+    }
+
+    .menu {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: bold;
+    }
+
+    .menu-item {
+      margin-right: 20px;
     }
 
     .game {
@@ -27,7 +40,12 @@
   </style>
 </head>
 <body>
-  <div class="game"></div>
+  <div class="game">
+    <div class="menu">
+      <span class="menu-item">Score: <span class="current-score">0</span>;</span>
+      <span class="menu-item">Record: <span class="record-score">0</span>;</span>
+    </div>
+  </div>
 
   <script type="module" src="script.js" ></script>
 </body>

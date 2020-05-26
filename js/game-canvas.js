@@ -1,12 +1,10 @@
 import BaseCanvas from './base-canvas.js'
 import { copy, random } from './helpers.js'
 
-// TODO: add gameover
-// TODO: add scores
-// TODO: add hold and speed up
+// TODO: add speed up if key is holded
 
 const MAX_SPEED = 40
-const LEVEL_SPEED_UP = 4
+const BONUS_SPEED_PER_LEVEL = 4
 
 const colors = {
   square: {
@@ -22,15 +20,25 @@ export default class GameCanvas extends BaseCanvas {
   constructor (container) {
     super(container)
 
+    this.score = { record: 0, current: 0}
+    this.score = new Proxy(this.score, {
+      set (obj, prop, value) {
+        obj[prop] = value
+        document.querySelector(`.${prop}-score`).innerHTML = value
+        return true
+      }
+    })
+    this.score.record = localStorage.getItem('snake-record-score') || 0
+
     this.apple = { row: 0, col: 0 }
 
     this.snake = {
       direction: 'right',
       speedMs: 150,
       path: [
-        { row: 0, col: 32 },
-        { row: 0, col: 31 },
-        { row: 0, col: 30 }
+        { row: 1, col: 2 },
+        { row: 1, col: 1 },
+        { row: 1, col: 0 }
       ]
     }
 
@@ -49,7 +57,7 @@ export default class GameCanvas extends BaseCanvas {
       }
 
       const newDirection = e.key.replace('Arrow', '').toLowerCase().trim()
-      
+
       this.snake.direction = opositeDirections[newDirection] === this.snake.direction
         ? this.snake.direction
         : newDirection
@@ -133,6 +141,8 @@ export default class GameCanvas extends BaseCanvas {
   }
 
   _play () {
+    this.apple = this._getRandomSquare()
+
     const engine = () => {
       let prevSquare
       this.snake.path.forEach((square, index) => {
@@ -159,8 +169,18 @@ export default class GameCanvas extends BaseCanvas {
             square.row = this.board.rows - 1
           }
 
-          // eat at apple
-          if (square.row === this.apple.row && square.col === this.apple.col) {
+          // game over
+          if (this.snake.path.slice(1).some(bodyPart => bodyPart.row === square.row && bodyPart.col === square.col)) {
+            alert(`GAME OVER with ${this.score.current} score!`)
+            localStorage.setItem('snake-record-score', this.score.record)
+            window.location.reload()
+          } else if (square.row === this.apple.row && square.col === this.apple.col) {
+            // eat at apple
+            this.score.current++
+            if (this.score.current > this.score.record) {
+              this.score.record = this.score.current
+            }
+
             const tail = this.snake.path[this.snake.path.length - 1]
             this.snake.path.push(tail)
             // create new apple
@@ -168,7 +188,7 @@ export default class GameCanvas extends BaseCanvas {
             // speed up game
             this.snake.speedMs = this.snake.speedMs < MAX_SPEED
               ? MAX_SPEED
-              : this.snake.speedMs - LEVEL_SPEED_UP
+              : this.snake.speedMs - BONUS_SPEED_PER_LEVEL
           }
         } else {
           const squareBeforeUpdate = copy(this.snake.path[index])

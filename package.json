@@ -1,0 +1,16 @@
+{
+  "name": "snake",
+  "version": "1.0.0",
+  "scripts": {
+    "deploy": "surge --domain sssnake.surge.sh ./dist"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run deploy"
+    }
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^4.2.5"
+  }
+}
