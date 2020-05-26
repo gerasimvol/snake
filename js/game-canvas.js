@@ -171,6 +171,7 @@ export default class GameCanvas extends BaseCanvas {
 
           // game over
           if (this.snake.path.slice(1).some(bodyPart => bodyPart.row === square.row && bodyPart.col === square.col)) {
+            clearTimeout(this.timeout)
             alert(`GAME OVER with ${this.score.current} score!`)
             localStorage.setItem('snake-record-score', this.score.record)
             window.location.reload()
@@ -196,7 +197,7 @@ export default class GameCanvas extends BaseCanvas {
           prevSquare = copy(squareBeforeUpdate)
         }
       })
-      setTimeout(engine, this.snake.speedMs)
+      this.timeout = setTimeout(engine, this.snake.speedMs)
     }
     setTimeout(engine, this.snake.speedMs)
   }
