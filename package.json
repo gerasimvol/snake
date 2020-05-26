@@ -2,7 +2,7 @@
   "name": "snake",
   "version": "1.0.0",
   "scripts": {
-    "deploy": "surge --domain sssnake.surge.sh ./dist"
+    "deploy": "surge --domain ssssnake.surge.sh ."
   },
   "husky": {
     "hooks": {

@@ -1,4 +1,4 @@
 # snake
 🐍canvas snake
 
-[Live](http://sssnake.surge.sh)
+[Live](http://ssssnake.surge.sh)
