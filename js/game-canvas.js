@@ -3,8 +3,8 @@ import { copy, random } from './helpers.js'
 
 // TODO: add speed up if key is holded
 
-const MAX_SPEED = 40
-const BONUS_SPEED_PER_LEVEL = 4
+const MAX_SPEED = 25
+const BONUS_SPEED_PER_LEVEL = 5
 
 const colors = {
   square: {
@@ -41,6 +41,7 @@ export default class GameCanvas extends BaseCanvas {
         { row: 1, col: 0 }
       ]
     }
+    this.gameover = false
 
     document.addEventListener('keydown', e => {
       const allowedKeys = [
@@ -144,6 +145,8 @@ export default class GameCanvas extends BaseCanvas {
     this.apple = this._getRandomSquare()
 
     const engine = () => {
+      if (this.gameover) return
+
       let prevSquare
       this.snake.path.forEach((square, index) => {
         const isHead = index === 0
@@ -171,7 +174,7 @@ export default class GameCanvas extends BaseCanvas {
 
           // game over
           if (this.snake.path.slice(1).some(bodyPart => bodyPart.row === square.row && bodyPart.col === square.col)) {
-            clearTimeout(this.timeout)
+            this.gameover = true
             alert(`GAME OVER with ${this.score.current} score!`)
             localStorage.setItem('snake-record-score', this.score.record)
             window.location.reload()
@@ -197,7 +200,7 @@ export default class GameCanvas extends BaseCanvas {
           prevSquare = copy(squareBeforeUpdate)
         }
       })
-      this.timeout = setTimeout(engine, this.snake.speedMs)
+      setTimeout(engine, this.snake.speedMs)
     }
     setTimeout(engine, this.snake.speedMs)
   }
